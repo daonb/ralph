@@ -17,6 +17,9 @@
         {% if d.venture %}
             <a href="{% url 'ventures' d.venture.symbol details '' %}"
                 >{{ d.venture.name }}</a>{% endif %}{% if d.venture_role %}/{{ d.venture_role.full_name }}{% endif %}
+        {% for i in d.ownership_set.all %}
+            &nbsp;{{i.user}}
+        {% endfor %}
     </td>
     {% endif %}
     {% if 'model' in columns %}
