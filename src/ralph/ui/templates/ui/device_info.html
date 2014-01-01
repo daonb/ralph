@@ -63,6 +63,12 @@
                 <td>{{ device.venture.department }}</td>
             </tr>
         {% endif %}
+        {% for o in owners %}
+            <tr>
+                <td></td>
+                <td>{{ o.user }}</td>
+            </tr>
+        {% endfor %}
     </tbody>
 </table>
 

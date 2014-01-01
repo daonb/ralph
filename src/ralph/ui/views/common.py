@@ -92,6 +92,7 @@ from ralph.ui.forms.deployment import (
     ServerMoveStep2FormSet,
     ServerMoveStep3FormSet,
 )
+from ralph.ownership.models import Ownership
 from ralph import VERSION
 
 
@@ -573,6 +574,7 @@ class Info(DeviceUpdateView):
             'deployment_status': deployment_status,
             'plugins': plugins,
             'changed_addresses': self.get_changed_addresses(),
+            'owners': Ownership.objects.filter(device=self.object),
         })
         return ret
 
