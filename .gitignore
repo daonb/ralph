@@ -1,3 +1,4 @@
+*.pyc
 /doc/_build/
 /contrib/donpedro_v_1/DonPedro.DTO/bin
 /contrib/donpedro_v_1/DonPedro.DTO/obj
