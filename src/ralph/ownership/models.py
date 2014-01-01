@@ -8,20 +8,20 @@ class OwnershipManager(db.Manager):
         return self.create(user=user, device=device, expires_on=expires_on)
 
     def assign_to(self, device, user):
-        o = self.filter(device=device).order_by('-created')[0]
+        o = self.filter(device=device).latest()
         o.user = user
         o.save()
 
     def get_owner(self, device):
         try:
-            return self.filter(device=device).order_by('-created')[0].user
-        except IndexError:
+            return self.filter(device=device).latest().user
+        except Ownership.DoesNotExist:
             return None
 
     def release(self, device):
         try:
-            self.filter(device=device).order_by('-created')[0].delete()
-        except self.DoesNotExist:
+            self.filter(device=device).latest().delete()
+        except Ownership.DoesNotExist:
             pass
 
     def update(self):
@@ -45,4 +45,6 @@ class Ownership(TimeTrackable, EditorTrackable):
 
     class Meta:
         verbose_name = _("device ownership")
+        get_latest_by = "created"
+        ordering = ["-created"]
 

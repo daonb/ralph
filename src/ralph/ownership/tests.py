@@ -1,11 +1,12 @@
+from __future__ import absolute_import
 import mock
 
 from django.test import TestCase
 from django.contrib.auth.models import User
 
 from ralph.discovery.models import Device
-from ralph.ownership import models
-from ralph.ownership.models import Ownership
+from . import models
+from .models import Ownership
 
 class SimpleTest(TestCase):
     def setUp(self):
