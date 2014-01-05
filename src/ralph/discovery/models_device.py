@@ -610,6 +610,13 @@ class Device(LastSeen, Taggable.NoDefaultTags, SavePrioritized,
         ))
         return props
 
+    def get_all_children(self, include_self=False):
+        r = []
+        if include_self:
+            r.append(self)
+        for i in self.child_set.all():
+            r += i.get_all_children(True)
+        return r
 
 @receiver(
     db.signals.post_delete, sender=Device,

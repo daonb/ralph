@@ -292,7 +292,7 @@ class RacksRack(Racks, Base):
         else:
             max_slots = 0
         if max_slots:
-            for dev in rack.child_set.all():
+            for dev in rack.get_all_children():
                 slot = dev.chassis_position or 0
                 size = (dev.model.chassis_size if dev.model else 1) or 1
                 pos = dev.position
@@ -314,10 +314,11 @@ class RacksRack(Racks, Base):
                             pass
                         else:
                             size = 1
-                slots[slot + size - 1][0] = size
-                slots[slot + size - 1][1].append(dev)
-                for i in xrange(slot, slot + size - 1):
-                    slots[i][0] = -1
+                if slot:
+                    slots[slot + size - 1][0] = size
+                    slots[slot + size - 1][1].append(dev)
+                    for i in xrange(slot, slot + size - 1):
+                        slots[i][0] = -1
         else:
             return [(0, 1, rack.child_set.all())]
 

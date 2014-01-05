@@ -63,6 +63,15 @@ class ModelsTest(TestCase):
         self.assertEqual(dev_db.name, 'dev1')
         self.assertEqual(dev_db.sn, 'xaxaxa')
 
+    def test_device_children(self):
+        grandpapa = Device.create(name="grandpapa", sn="1",
+                      model_name='xxx', model_type=DeviceType.rack_server)
+        papa = Device.create(name="papa", parent=grandpapa, sn="2",
+                      model_name='xxx', model_type=DeviceType.unknown)
+        kid = Device.create(name="kid", parent=papa, sn="3",
+                      model_name='xxx', model_type=DeviceType.unknown)
+        self.assertEqual(sorted(grandpapa.get_all_children(), key=repr),
+                         sorted([papa, kid], key=repr))
 
 class MockDateTime(datetime.datetime):
     @classmethod

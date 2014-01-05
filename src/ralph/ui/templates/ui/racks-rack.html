@@ -19,24 +19,7 @@
         <th width="16" style="text-align:right">{{ slot }}</th>
         <td rowspan="{% if size == 0 %}1{% else %} {{ size }} {% endif %}">
         {% for dev in devs %}
-        {% if dev.model.type == 2 %}
-            <table class="table table-bordered table-condensed">
-            <tr><th colspan="2">
             <a href="../info/{{ dev.id }}">{{ dev|device_icon }} {{ dev.name }}</a> ({{ dev.position|default:'-' }})
-            </th></tr>
-            {% for child in dev.child_set.all|chassis_order %}
-                <tr>
-                    <th width="16" style="text-align:right">{{ child.get_position|default:'' }}</th>
-                    <td>
-                        <a href="../info/{{ child.id }}">{{ child|device_icon }} {{ child.name }}</a>
-                    </td>
-                </tr>
-            {% endfor %}
-            </table>
-        {% else %}
-        <a href="../info/{{ dev.id }}">{{ dev|device_icon }} {{ dev.name }}</a> ({{ dev.position|default:'-' }})
-        {% endif %}
-        <br>
         {% endfor %}
         </td>
     </tr>
