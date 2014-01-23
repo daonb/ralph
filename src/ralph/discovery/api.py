@@ -16,6 +16,7 @@ import datetime
 
 from django.conf import settings
 from django.db import models as db
+from lck.django.tags.models import Tag
 from tastypie import fields
 from tastypie.authentication import ApiKeyAuthentication
 from tastypie.cache import SimpleCache
@@ -42,6 +43,12 @@ TIMEFRAME = settings.API_THROTTLING['timeframe']
 EXPIRATION = settings.API_THROTTLING['expiration']
 SAVE_PRIORITY=10
 
+class TagResource(MResource):
+    class Meta:
+        queryset = Tag.objects.all()
+        filtering = {
+            'name': ALL
+        }
 
 class IPAddressResource(MResource):
     device = fields.ForeignKey(
@@ -203,6 +210,20 @@ class DeviceResource(MResource):
         related_name='device',
         full=True,
     )
+    tags = fields.ToManyField(
+        TagResource,
+        'tags',
+        full=True,
+    )
+
+    def dehydrate_tags(self, bundle):
+        tags = bundle.data['tags']
+        if not tags:
+            return
+        if len(tags) == 1:
+            return tags[0].data['name']
+        else:
+            return ",".join(set(i.data['name'] for i in tags))
 
     def dehydrate(self, bundle):
         properties = bundle.obj.get_property_set()
@@ -246,6 +267,7 @@ class DeviceResource(MResource):
             'venture': ALL_WITH_RELATIONS,
             'verified': ALL,
             'warranty_expiration_date': ALL,
+            'tags': ALL_WITH_RELATIONS,
         }
         excludes = ('cache_version')
         authentication = ApiKeyAuthentication()

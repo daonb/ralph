@@ -23,6 +23,7 @@ from ralph.discovery.models import (
 )
 from ralph.ui.tests.util import create_device
 from ralph.ui.tests.global_utils import create_user
+from ralph.discovery.models import Device
 from tastypie.test import ResourceTestCase
 
 
@@ -294,3 +295,49 @@ class AccessToDiscoveyApiTest(TestCase):
 
         response = self.get_response(resource)
         self.assertEqual(response.status_code, 200)
+
+class DeviceWithTags(ResourceTestCase):
+    def setUp(self):
+        super(DeviceWithTags, self).setUp()
+        self.user = create_user(
+            'api_user',
+            'test@mail.local',
+            'password',
+            is_staff=False,
+            is_superuser=False,
+        )
+        user_profile = Profile.objects.get(user=self.user)
+        BoundPerm.objects.create(profile=user_profile, perm=Perm.read_dc_structure)
+        self.api_login = {
+            'format': 'json',
+            'username': self.user.username,
+            'api_key': self.user.api_key.key,
+        }
+        cache.delete("api_user_accesses")
+        self.device = Device.objects.create(name="dev1")
+
+    def get_response(self, data={}):
+        data.update(self.api_login)
+        path = "/api/v0.9/dev/"
+        response = self.client.get(
+            path=path,
+            data=data,
+            format='json',
+        )
+        return response
+
+    def test_single_tag(self):
+        self.device.tag('a', 1, self.user)
+        resp = self.get_response({'tags__name': 'a'})
+        self.assertValidJSONResponse(resp)
+        obj = self.deserialize(resp)['objects'][0]
+        self.assertEquals(obj['tags'],'a')
+
+    def test_double_tags(self):
+        self.device.tag('a', 1, self.user)
+        self.device.tag('b', 1, self.user)
+        resp = self.get_response({'tags__name': 'a'})
+        self.assertValidJSONResponse(resp)
+        obj = self.deserialize(resp)['objects'][0]
+        self.assertEquals(obj['tags'],'a,b')
+
