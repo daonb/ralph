@@ -164,9 +164,6 @@ class ModelResource(MResource):
         }
         excludes = ('save_priorities', 'max_save_priority', 'cache_version', )
         cache = SimpleCache()
-        filtering = {
-            'type': ALL,
-        }
         throttle = CacheThrottle(
             throttle_at=THROTTLE_AT,
             timeframe=TIMEFRAME,
