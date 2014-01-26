@@ -475,6 +475,23 @@ class DevResource(DeviceResource):
         )
 
 
+class DeviceWithDescendantsResource(DeviceResource):
+
+    class Meta:
+        queryset = Device.objects.all()
+        filtering = DeviceResource.Meta.filtering
+
+    def dehydrate(self, bundle):
+        kids = []
+        res = DevResource()
+        for dev in bundle.obj.get_all_children():
+            b = res.build_bundle(obj=dev)
+            kids.append(res.full_dehydrate(b, for_list=False))
+        if kids:
+            bundle.data['kids'] = kids
+        return bundle
+
+
 class DeviceWithPricingResource(DeviceResource):
     class Meta:
         queryset = Device.objects.all()

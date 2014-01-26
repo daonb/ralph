@@ -27,6 +27,7 @@ from ralph.discovery.api import (
     NetworksResource,
     PhysicalServerResource,
     RackServerResource,
+    DeviceWithDescendantsResource,
     VirtualServerResource,
 )
 from ralph.cmdb.api import (
@@ -68,7 +69,7 @@ for r in (IPAddressResource, NetworksResource, ModelGroupResource,
           ModelResource, PhysicalServerResource, RackServerResource,
           BladeServerResource, VirtualServerResource, DevResource,
           WindowsDeviceResource, DeviceWithPricingResource,
-          NetworkKindsResource):
+          NetworkKindsResource, DeviceWithDescendantsResource):
     v09_api.register(r())
 
 # CMDB API
