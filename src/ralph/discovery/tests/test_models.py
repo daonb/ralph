@@ -8,6 +8,8 @@ from __future__ import unicode_literals
 import datetime
 
 from django.test import TestCase
+from django.contrib.auth.models import User
+from lck.django.tags.models import Tag, Taggable
 import mock
 
 from ralph.discovery.models import DeviceType, Device, UptimeSupport
@@ -73,10 +75,11 @@ class ModelsTest(TestCase):
         self.assertEqual(sorted(grandpapa.get_all_children(), key=repr),
                          sorted([papa, kid], key=repr))
 
+mock_now = lambda: datetime.datetime(2010,10,3,14,53,21)
 class MockDateTime(datetime.datetime):
     @classmethod
     def now(cls):
-        return datetime.datetime(2010,10,3,14,53,21)
+        return mock_now() 
 
 class UptimeSupportTest(TestCase):
     @mock.patch('ralph.discovery.models_device.datetime.datetime', MockDateTime)
@@ -87,3 +90,25 @@ class UptimeSupportTest(TestCase):
         self.assertEqual(m.uptime, None)
         m.uptime = 132
         self.assertEqual(m.uptime, datetime.timedelta(seconds=132))
+
+class TagUpdateTest(TestCase):
+    @mock.patch('lck.django.common.models.now', mock_now)
+    def create_device(self):
+        return Device.create(
+            model_name='xxx',
+            model_type=DeviceType.unknown,
+            sn='xaxaxa',
+            user='ralph',
+        )
+    def test_add_delete_tag(self):
+        dev = self.create_device()
+        self.assertEqual(dev.modified, mock_now())
+        user = User.objects.create_user(username="a user")
+        dev.tag('tag',1, user)
+        dev = Device.objects.get(pk=dev.id)
+        self.assertTrue(datetime.datetime.now()-dev.modified < datetime.timedelta(seconds=1))
+        # now, let's delete the tag
+        Tag.objects.get(name='tag').delete()
+        last_mod = dev.modified
+        dev = Device.objects.get(pk=dev.id)
+        self.assertTrue(dev.modified > last_mod)

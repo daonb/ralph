@@ -22,7 +22,7 @@ from lck.django.common.models import (Named, WithConcurrentGetOrCreate,
                                       SoftDeletable, TimeTrackable)
 from lck.django.choices import Choices
 from lck.django.common import nested_commit_on_success
-from lck.django.tags.models import Taggable
+from lck.django.tags.models import Tag, Taggable
 from django.db.utils import DatabaseError
 from django.utils.html import escape
 from django.dispatch import receiver
@@ -683,3 +683,13 @@ class LoadBalancerMember(SavePrioritized, WithConcurrentGetOrCreate):
     def __unicode__(self):
         return "{}:{}@{}({})".format(
             self.address.address, self.port, self.pool.name, self.id)
+
+@receiver(db.signals.post_save, sender=Tag)
+@receiver(db.signals.post_delete, sender=Tag)
+def updated_device_on_tag_change(sender, instance, **kwargs):
+    ''' when saving or deleting a tag, the modified time has to change '''
+    obj = instance.content_object
+    if obj.__class__ == Device:
+        obj.mark_dirty('role')
+        obj.save()
+
