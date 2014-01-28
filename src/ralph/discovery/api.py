@@ -482,13 +482,13 @@ class DeviceWithDescendantsResource(DeviceResource):
         filtering = DeviceResource.Meta.filtering
 
     def dehydrate(self, bundle):
-        kids = []
+        des = []
         res = DevResource()
         for dev in bundle.obj.get_all_children():
             b = res.build_bundle(obj=dev)
-            kids.append(res.full_dehydrate(b, for_list=False))
-        if kids:
-            bundle.data['kids'] = kids
+            des.append(res.full_dehydrate(b, for_list=False))
+        if des:
+            bundle.data['descendants'] = des
         return bundle
 
 
